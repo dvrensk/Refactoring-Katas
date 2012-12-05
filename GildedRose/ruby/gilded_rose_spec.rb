@@ -11,6 +11,9 @@ describe GildedRose do
     end
 
     context "for normal goods" do
+      let(:items) { [Item.new("foo", 3, 0)] }
+      let(:item) { items[0] }
+
       it "decreases quality" do
         items = [Item.new("foo", 10, 5)]
         GildedRose.update_quality(items)
@@ -24,9 +27,9 @@ describe GildedRose do
       end
       
       it "never goes below 0" do
-        items = [Item.new("foo", 3, 0)]
         GildedRose.update_quality(items)
-        items[0].quality.should == 0
+
+        item.quality.should == 0
       end
     end
 

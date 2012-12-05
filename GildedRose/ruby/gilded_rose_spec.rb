@@ -109,6 +109,23 @@ describe GildedRose do
 
     end
 
+    context "Conjured items" do
+      let(:sell_in) { 3 }
+      let(:quality) { 30 }
+      let(:items) { [Item.new("Conjured", sell_in, quality)] }
+
+      it "decreases quality at double speed" do
+        item.quality.should == 28
+      end
+
+      context "after sell-in date" do
+        let(:sell_in) { 0 }
+
+        it "decreases quality at double speed" do
+          item.quality.should == 26
+        end
+      end
+    end
 
   end
   

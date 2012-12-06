@@ -1,57 +1,58 @@
 
 class GildedRose
   def self.update_quality(items)
-    items.each do |item|
-      # if item.name == "Conjured"
-      #   special
-      #   next
-      # end
-      if item.name != "Aged Brie" and item.name != "Backstage passes to a TAFKAL80ETC concert"
-        if item.quality > 0
-          if item.name != "Sulfuras, Hand of Ragnaros"
-            item.quality = item.quality - 1
-          end
-        end
-      else
-        if item.quality < 50
-          item.quality = item.quality + 1
-          if item.name == "Backstage passes to a TAFKAL80ETC concert"
-            if item.sell_in < 11
-              if item.quality < 50
-                item.quality = item.quality + 1
-              end
+    items.each do |i|
+      item = wrap(i)
+      item.run
+      i.sell_in, i.quality = item.sell_in, item.quality
+    end
+  end
+
+  def self.wrap(i)
+    klass = case i.name
+            when /^Sulfuras/       then Sulfuras
+            when /\bBrie\b/        then Cheese
+            when /^Backstage pass/ then Ticket
+            else Item
             end
-            if item.sell_in < 6
-              if item.quality < 50
-                item.quality = item.quality + 1
-              end
-            end
-          end
-        end
-      end
-      if item.name != "Sulfuras, Hand of Ragnaros"
-        item.sell_in = item.sell_in - 1
-      end
-      if item.sell_in < 0
-        if item.name != "Aged Brie"
-          if item.name != "Backstage passes to a TAFKAL80ETC concert"
-            if item.quality > 0
-              if item.name != "Sulfuras, Hand of Ragnaros"
-                item.quality = item.quality - 1
-              end
-            end
-          else
-            item.quality = item.quality - item.quality
-          end
-        else
-          if item.quality < 50
-            item.quality = item.quality + 1
-          end
-        end
+    klass.new(i.sell_in, i.quality)
+  end
+
+  class Item < Struct.new(:sell_in, :quality)
+    def run
+      self.sell_in -= 1
+      if quality > 0
+        self.quality -= (sell_in < 0 ? 2 : 1)
       end
     end
-    items
   end
+
+  class Sulfuras < Item
+    def run ; end
+  end
+
+  class Cheese < Item
+    def run
+      self.sell_in -= 1
+      self.quality += sell_in < 0 ? 2 : 1
+    end
+  end
+
+  class Ticket < Item
+    def run
+      self.sell_in -= 1
+      if sell_in < 0
+        self.quality = 0
+      else
+        self.quality += case sell_in
+                        when 5...10 then 2
+                        when 0...5  then 3
+                        else 1
+                        end
+      end
+    end
+  end
+
 end
 
 class Item

@@ -31,10 +31,17 @@ describe GildedRose do
         end
       end
 
-      context "passed sell-in date" do
+      context "past sell-in date" do
         let(:sell_in) { 0 }
         it "decreases quality with double rate after last_sell" do
           item.quality.should == quality - 2
+        end
+
+        context "close to zero" do
+          let(:quality) { 1 }
+          it "decreases quality to 0 but not -1" do
+            item.quality.should == 0
+          end
         end
       end
       
@@ -73,19 +80,19 @@ describe GildedRose do
       let(:items) { [Item.new("Backstage passes to a TAFKAL80ETC concert", sell_in, quality)] }
 
       context "with more than 10 days to the concert" do
-        let(:sell_in) { 12 }
+        let(:sell_in) { 11 }
 
         it "increases quality slowly" do
-          item.quality.should == 6      
+          item.quality.should == 6
         end
 
         it "decreses sell_in" do
-          item.sell_in.should == 11
+          item.sell_in.should == 10
         end
       end
 
-      context "with 10 days to the concert" do
-        let(:sell_in) { 10 }
+      context "with 5-10 days to the concert" do
+        let(:sell_in) { 6 }
 
         it "increases quality by two" do
           item.quality.should == quality + 2      
@@ -93,7 +100,7 @@ describe GildedRose do
       end
 
       context "with 5 days or less to the concert" do
-        let(:sell_in) { 5 }
+        let(:sell_in) { 1 }
 
         it "increases quality by three" do
           item.quality.should == quality + 3 
@@ -109,23 +116,23 @@ describe GildedRose do
 
     end
 
-    context "Conjured items" do
-      let(:sell_in) { 3 }
-      let(:quality) { 30 }
-      let(:items) { [Item.new("Conjured", sell_in, quality)] }
+    # context "Conjured items" do
+    #   let(:sell_in) { 3 }
+    #   let(:quality) { 30 }
+    #   let(:items) { [Item.new("Conjured", sell_in, quality)] }
 
-      it "decreases quality at double speed" do
-        item.quality.should == 28
-      end
+    #   it "decreases quality at double speed" do
+    #     item.quality.should == 28
+    #   end
 
-      context "after sell-in date" do
-        let(:sell_in) { 0 }
+    #   context "after sell-in date" do
+    #     let(:sell_in) { 0 }
 
-        it "decreases quality at double speed" do
-          item.quality.should == 26
-        end
-      end
-    end
+    #     it "decreases quality at double speed" do
+    #       item.quality.should == 26
+    #     end
+    #   end
+    # end
 
   end
   
